@@ -1,0 +1,11 @@
+{
+  "name": "cc_scraper",
+  "version": "1.0.0",
+  "description": "This module will help you get information you need about credit card points based on the categories, cashback calendars, etc.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jinwook Kim",
+  "license": "ISC"
+}
