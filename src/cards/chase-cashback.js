@@ -1,40 +1,34 @@
 const request = require("request");
 const jsdom = require("jsdom");
+const utils = require("./utils");
 const { JSDOM } = jsdom;
 
-function getChaseCashbackCal() {
-    request("https://creditcards.chase.com/freedom-credit-cards/calendar", function(err, resp, body) {
-        if (err) console.log(err);
+const CASHBACK_CAL_URL = "https://creditcards.chase.com/freedom-credit-cards/calendar";
 
-        const dom = new JSDOM(body);
-        const d = dom.window.document;
+class Chase_CashBack_Cal {
 
-        let tiles = d.querySelectorAll('.calendar .tile');
-        let calendar = makeDictionaryCalendar(tiles);
-    });
-}
+    getCalendar(callback) {
+        request(CASHBACK_CAL_URL, (err, resp, body) => {
+            if (err) console.log(err);
 
-function makeDictionaryCalendar(calendar) {
-    let result = [];
-    for (let tile of calendar) {
-        let quarter = sanitizeNodes(tile.querySelector('.top'));
-        let categories = sanitizeNodes(tile.querySelectorAll('.middle h2'));
-        result.push({quarter, categories});
+            const dom = new JSDOM(body);
+            const d = dom.window.document;
+
+            let tiles = d.querySelectorAll('.calendar .tile');
+            let calendar = this.makeDictionaryCalendar(tiles);
+            return callback(calendar);
+        });
     }
-    return result;
-}
 
-function sanitizeNodes(nodes) {
-    if (nodes.length > 0) {
+    makeDictionaryCalendar(calendar) {
         let result = [];
-        for (let node of nodes) {
-            result.push(node.textContent.trim());
+        for (let tile of calendar) {
+            let quarter = utils.sanitizeNodes(tile.querySelector('.top'));
+            let categories = utils.sanitizeNodes(tile.querySelectorAll('.middle h2'));
+            result.push({quarter, categories});
         }
         return result;
     }
-    else {
-        return nodes.textContent.trim();
-    }
 }
 
-getChaseCashbackCal();
+module.exports = Chase_CashBack_Cal;
