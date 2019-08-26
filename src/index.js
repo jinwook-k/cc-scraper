@@ -8,8 +8,4 @@ class Cards {
 }
 let test = new Cards();
 
-test.getChaseCashBackCal((body) => {
-    console.log('body: ', body);
-});
-
 module.exports = Cards;
