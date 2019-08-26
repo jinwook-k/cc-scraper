@@ -6,6 +6,5 @@ class Cards {
         return cal.getCalendar(callback);
     }
 }
-let test = new Cards();
 
 module.exports = Cards;
