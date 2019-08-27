@@ -18,16 +18,23 @@ class Chase_CashBack_Cal {
      */
     getCalendar(callback) {
         request(CASHBACK_CAL_URL, (err, resp, body) => {
-            if (err) console.error('getCalendar: ', err);
+            if (err) {
+                console.error('getCalendar: ', err);
+                return callback(err);
+            }
 
             const dom = new JSDOM(body);
             const d = dom.window.document;
 
             let tiles = d.querySelectorAll('.calendar .tile');
             let calendar = this.makeDictionaryCalendar(tiles);
-            this.getChaseCashBackFaqs((faqs) => {
+            this.getChaseCashBackFaqs((error, faqs) => {
+                if (error) {
+                    console.error('getChaseCashBackFaqs: ', error);
+                    return callback(error);
+                }
                 let result = utils.mergeCalAndFaqs(calendar, faqs);
-                return callback(result);
+                return callback(null, result);
             });
         });
     }
@@ -40,7 +47,10 @@ class Chase_CashBack_Cal {
      */
     getChaseCashBackFaqs(callback) {
         request(CASHBACK_FAQS, (err, resp, body) => {
-            if (err) console.error('getChaseCashBackFaqs: ', err);
+            if (err) {
+                console.error('getChaseCashBackFaqs: ', err);
+                return callback(err);
+            }
 
             const dom = new JSDOM(body);
             const d = dom.window.document;
@@ -56,14 +66,14 @@ class Chase_CashBack_Cal {
                     });
                 }
             }
-            return callback(categories);
+            return callback(null, categories);
         });
     }
 
     /**
      * Makes a list of dictionaries based on each quarter which will include all the categories
      * @private
-     * @param {NodeList[]} tiles NodeList of tiles (class name of calendar objs for each quarter)
+     * @param {NodeList} tiles NodeList of tiles (class name of calendar objs for each quarter)
      * @return {Object[]} result Array of dictionaries with `quarter` and `category` properties
      */
     makeDictionaryCalendar(tiles) {
@@ -72,7 +82,11 @@ class Chase_CashBack_Cal {
             let quarter = utils.sanitizeNodes(tile.querySelector('.top'));
             let categories = utils.sanitizeNodes(tile.querySelectorAll('.middle h2'));
             categories.map(
-                c => result.push({ quarter: utils.getQuarterFromMonths(quarter), category: c }));
+                c => result.push({
+                    quarter: utils.getQuarterFromMonths(quarter),
+                    category: c
+                })
+            );
         }
         return result;
     }
