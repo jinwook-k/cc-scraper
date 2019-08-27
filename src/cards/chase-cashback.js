@@ -1,14 +1,21 @@
-const request = require("request");
-const jsdom = require("jsdom");
-const utils = require("./utils");
+const request = require('request');
+const utils = require('./utils');
+const jsdom = require('jsdom');
 const { JSDOM } = jsdom;
 
-const CASHBACK_CAL_URL = "https://creditcards.chase.com/freedom-credit-cards/calendar";
-const CASHBACK_FAQS = "https://creditcards.chase.com/freedom-credit-cards/faq";
+const CASHBACK_CAL_URL = 'https://creditcards.chase.com/freedom-credit-cards/calendar';
+const CASHBACK_FAQS = 'https://creditcards.chase.com/freedom-credit-cards/faq';
 const FAQ_CATEGORY_SECTION = '#row2 .row-sub-section';
 
+/* A class to get Chase's 5% cashback information */
 class Chase_CashBack_Cal {
 
+    /**
+     * Creates an array of category dictionaries with associated quarters of cashback and faq info.
+     * @public
+     * @param {function} callback This will callback to the called function with the return value
+     * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `info` properties
+     */
     getCalendar(callback) {
         request(CASHBACK_CAL_URL, (err, resp, body) => {
             if (err) console.error('getCalendar: ', err);
@@ -19,35 +26,18 @@ class Chase_CashBack_Cal {
             let tiles = d.querySelectorAll('.calendar .tile');
             let calendar = this.makeDictionaryCalendar(tiles);
             this.getChaseCashBackFaqs((faqs) => {
-                let result = this.mergeCalAndFaqs(calendar, faqs);
+                let result = utils.mergeCalAndFaqs(calendar, faqs);
                 return callback(result);
             });
         });
     }
 
-    mergeCalAndFaqs(cal, faqs) {
-        let result = [];
-        for (let calEle of cal) {
-            let sanitizedCatName = calEle.category.toLowerCase().replace(/\d/g, '');
-
-            for (let faq of faqs) {
-                let sanitizedTitleName = faq.title.toLowerCase();
-
-                if (sanitizedTitleName.includes(sanitizedCatName)) {
-                    result.push({
-                        quarter: calEle.quarter,
-                        category: utils.toTitleCase(sanitizedCatName),
-                        info: faq.info
-                    });
-                    break;
-                }
-            }
-        }
-        return result;
-    }
-
-    // Get a list of category faqs in a data structure
-    // {title, info}
+    /**
+     * Get a list of category faqs in a data structure
+     * @private
+     * @param {function} callback This will callback to the called function with the return value
+     * @return {Object[]} categories Array of dictionaries with `title` and `info` properties
+     */
     getChaseCashBackFaqs(callback) {
         request(CASHBACK_FAQS, (err, resp, body) => {
             if (err) console.error('getChaseCashBackFaqs: ', err);
@@ -62,7 +52,7 @@ class Chase_CashBack_Cal {
                 if (title.includes('category')) {
                     categories.push({
                         title,
-                        info: utils.sanitizeNodes(row.querySelector('.inner'))
+                        info: utils.sanitizeNodes(row.querySelector('.inner')),
                     });
                 }
             }
@@ -70,17 +60,22 @@ class Chase_CashBack_Cal {
         });
     }
 
-    // Makes a list of dictionaries based on each quarter which will include all the categories
-    makeDictionaryCalendar(calendar) {
+    /**
+     * Makes a list of dictionaries based on each quarter which will include all the categories
+     * @private
+     * @param {NodeList[]} tiles NodeList of tiles (class name of calendar objs for each quarter)
+     * @return {Object[]} result Array of dictionaries with `quarter` and `category` properties
+     */
+    makeDictionaryCalendar(tiles) {
         let result = [];
-        for (let tile of calendar) {
+        for (let tile of tiles) {
             let quarter = utils.sanitizeNodes(tile.querySelector('.top'));
             let categories = utils.sanitizeNodes(tile.querySelectorAll('.middle h2'));
-            categories.map(c => result.push({quarter: utils.getQuarterFromMonths(quarter), category: c}));
+            categories.map(
+                c => result.push({ quarter: utils.getQuarterFromMonths(quarter), category: c }));
         }
         return result;
     }
-
 
 }
 
