@@ -1,6 +1,7 @@
 # What is this?
-This is an npm module where it scrapes popular credit card webpages and try my best to neatly put the useful information into a clean datastruce for people to use in their projects. Hopefully, it'll be useful to build out fin-tech applications 🙏
-The vision is to build this out in multiple languages (next is Python, thirdly will be Rust). 
+This is an npm module where it scrapes popular credit card webpages and try my best to neatly put the useful information into a clean datastruce for people to use in their projects. Hopefully, it'll be useful to build out fin-tech applications 🙏  
+
+The vision is to build this out in multiple languages (next is Python, thirdly will be Rust).   
 But, after I am done with this javascript package, I will try to migrate this over to an actual live, hosted API. 
 
 Please look through the issues and projects tabs for the future plans of `cc-scraper`.
