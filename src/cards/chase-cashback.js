@@ -11,10 +11,10 @@ const FAQ_CATEGORY_SECTION = '#row2 .row-sub-section';
 class Chase_CashBack_Cal {
 
     /**
-     * Creates an array of category dictionaries with associated quarters of cashback and faq info.
+     * Creates an array of category dictionaries with associated quarters of cashback and faq terms.
      * @public
      * @param {function} callback This will callback to the called function with the return value
-     * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `info` properties
+     * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `terms` properties
      */
     getCalendar(callback) {
         request(CASHBACK_CAL_URL, (err, resp, body) => {
@@ -33,17 +33,44 @@ class Chase_CashBack_Cal {
                     console.error('getChaseCashBackFaqs: ', error);
                     return callback(error);
                 }
-                let result = utils.mergeCalAndFaqs(calendar, faqs);
+                let result = this.mergeCalAndFaqs(calendar, faqs);
                 return callback(null, result);
             });
         });
     }
 
     /**
+     * Creates an array of category dictionaries with associated quarters of cashback and faq info.
+     * @param {Object[]} cal This will callback to the called function with the return value
+     * @param {Object[]} faqs This will callback to the called function with the return value
+     * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `info` properties
+     */
+    mergeCalAndFaqs(cal, faqs) {
+        let result = [];
+        for (let calEle of cal) {
+            let sanitizedCatName = calEle.category.toLowerCase().replace(/\d/g, '');
+
+            for (let faq of faqs) {
+                let sanitizedTitleName = faq.title.toLowerCase();
+
+                if (sanitizedTitleName.includes(sanitizedCatName)) {
+                    result.push({
+                        quarter: calEle.quarter,
+                        category: utils.toTitleCase(sanitizedCatName),
+                        terms: faq.terms,
+                    });
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
      * Get a list of category faqs in a data structure
      * @private
      * @param {function} callback This will callback to the called function with the return value
-     * @return {Object[]} categories Array of dictionaries with `title` and `info` properties
+     * @return {Object[]} categories Array of dictionaries with `title` and `terms` properties
      */
     getChaseCashBackFaqs(callback) {
         request(CASHBACK_FAQS, (err, resp, body) => {
@@ -62,7 +89,7 @@ class Chase_CashBack_Cal {
                 if (title.includes('category')) {
                     categories.push({
                         title,
-                        info: utils.sanitizeNodes(row.querySelector('.inner')),
+                        terms: utils.sanitizeNodes(row.querySelector('.inner')),
                     });
                 }
             }

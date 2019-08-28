@@ -61,32 +61,7 @@ class Utils {
         });
     }
 
-    /**
-     * Creates an array of category dictionaries with associated quarters of cashback and faq info.
-     * @param {Object[]} cal This will callback to the called function with the return value
-     * @param {Object[]} faqs This will callback to the called function with the return value
-     * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `info` properties
-     */
-    static mergeCalAndFaqs(cal, faqs) {
-        let result = [];
-        for (let calEle of cal) {
-            let sanitizedCatName = calEle.category.toLowerCase().replace(/\d/g, '');
 
-            for (let faq of faqs) {
-                let sanitizedTitleName = faq.title.toLowerCase();
-
-                if (sanitizedTitleName.includes(sanitizedCatName)) {
-                    result.push({
-                        quarter: calEle.quarter,
-                        category: utils.toTitleCase(sanitizedCatName),
-                        info: faq.info,
-                    });
-                    break;
-                }
-            }
-        }
-        return result;
-    }
 }
 
 module.exports = Utils;
