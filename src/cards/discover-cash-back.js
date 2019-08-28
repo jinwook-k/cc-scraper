@@ -3,11 +3,11 @@ const utils = require('./utils');
 
 const DISCOVER_CAL_URL = 'https://www.discover.com/credit-cards/cashback-bonus/data/offers.json?_=1565454657740';
 
-/* A class to get Discovers's 5% cashback information */
-class Discover_Cashback_Cal {
+/* A class to get Discovers's 5% cash back information */
+class DiscoverCashBackCal {
 
     /**
-     * Creates an array of category dictionaries with associated quarters of cashback and faq info.
+     * Creates an array of category dictionaries with associated quarters of cash back and faq info.
      * @public
      * @param {function} callback This will callback to the called function with the return value
      * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `info` properties
@@ -25,7 +25,7 @@ class Discover_Cashback_Cal {
     }
 
     /**
-     * Creates an array of category dictionaries with associated quarters of cashback and faq info.
+     * Creates an array of category dictionaries with associated quarters of cash back and faq info.
      * @public
      * @param {Object[]} quarters Array of objects that hold info about each quarter, terms, and metadata
      * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `terms` properties
@@ -51,4 +51,4 @@ class Discover_Cashback_Cal {
     }
 }
 
-module.exports = Discover_Cashback_Cal;
+module.exports = DiscoverCashBackCal;
