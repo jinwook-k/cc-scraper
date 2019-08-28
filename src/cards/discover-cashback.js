@@ -2,9 +2,8 @@ const request = require('request');
 const utils = require('./utils');
 
 const DISCOVER_CAL_URL = 'https://www.discover.com/credit-cards/cashback-bonus/data/offers.json?_=1565454657740';
-const FAQ_CATEGORY_SECTION = '#row2 .row-sub-section';
 
-/* A class to get Chase's 5% cashback information */
+/* A class to get Discovers's 5% cashback information */
 class Discover_Cashback_Cal {
 
     /**
