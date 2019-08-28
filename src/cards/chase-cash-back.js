@@ -7,8 +7,8 @@ const CASHBACK_CAL_URL = 'https://creditcards.chase.com/freedom-credit-cards/cal
 const CASHBACK_FAQS = 'https://creditcards.chase.com/freedom-credit-cards/faq';
 const FAQ_CATEGORY_SECTION = '#row2 .row-sub-section';
 
-/* A class to get Chase's 5% cashback information */
-class Chase_CashBack_Cal {
+/* A class to get Chase's 5% cash back information */
+class ChaseCashBackCal {
 
     /**
      * Creates an array of category dictionaries with associated quarters of cashback and faq terms.
@@ -40,7 +40,7 @@ class Chase_CashBack_Cal {
     }
 
     /**
-     * Creates an array of category dictionaries with associated quarters of cashback and faq info.
+     * Creates an array of category dictionaries with associated quarters of cash back and faq info.
      * @param {Object[]} cal This will callback to the called function with the return value
      * @param {Object[]} faqs This will callback to the called function with the return value
      * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `info` properties
@@ -120,4 +120,4 @@ class Chase_CashBack_Cal {
 
 }
 
-module.exports = Chase_CashBack_Cal;
+module.exports = ChaseCashBackCal;

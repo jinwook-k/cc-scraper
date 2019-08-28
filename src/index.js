@@ -1,5 +1,5 @@
-const CHASE_CASHBACK = require("./cards/chase-cashback");
-const DISCOVER_CASHBACK = require("./cards/discover-cashback");
+const CHASE_CASHBACK = require("./cards/chase-cash-back");
+const DISCOVER_CASHBACK = require("./cards/discover-cash-back");
 
 
 module.exports.getChaseCashBackCal = (callback) => {
