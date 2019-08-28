@@ -20,9 +20,7 @@ class Discover_Cashback_Cal {
                 return callback(err);
             }
 
-            // console.log('quarters: ', body['quarters']);
             let sanitizeBody = this.sanitizeRawJson(body['quarters']);
-
             return callback(null, sanitizeBody);
         });
     }
