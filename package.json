@@ -1,8 +1,12 @@
 {
   "name": "cc-scraper",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "This module will help you get information you need about credit card points based on the categories, cashback calendars, etc.",
   "main": "src/index.js",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/JinwookKim/cc-scraper"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
