@@ -27,11 +27,17 @@ class Discover_Cashback_Cal {
         });
     }
 
-    sanitizeRawJson(body) {
+    /**
+     * Creates an array of category dictionaries with associated quarters of cashback and faq info.
+     * @public
+     * @param {Object[]} quarters Array of objects that hold info about each quarter, terms, and metadata
+     * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `terms` properties
+     */
+    sanitizeRawJson(quarters) {
         let result = [];
         let thisYear = (new Date()).getFullYear();
 
-        for (let quarter of body) {
+        for (let quarter of quarters) {
             let date = quarter['quarterLabelStartDate'];
             let title = quarter['title'];
             let terms = quarter['programTerms'];
