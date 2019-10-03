@@ -1,4 +1,6 @@
 const request = require('request');
+const rp = require('request-promise');
+const cheerio = require('cheerio');
 const utils = require('./utils');
 const jsdom = require('jsdom');
 const { JSDOM } = jsdom;
@@ -36,6 +38,30 @@ class ChaseCashBackCal {
                 let result = this.mergeCalAndFaqs(calendar, faqs);
                 return callback(null, result);
             });
+        });
+    }
+
+    /**
+     *
+     * @public
+     */
+    async getPromiseCalendar() {
+        let options = {
+            uri: CASHBACK_CAL_URL,
+            transform: (body) => {
+                return cheerio.load(body);
+            }
+        };
+
+        return await rp(options)
+            .then(($) => {
+                let tiles = $('.calendar .tile').text();
+                let calendar = this.makeDictionaryCalendar(tiles);
+                console.log('trimmed: ', calendar);
+                return calendar;
+            })
+            .catch((err) => {
+                // Crawling failed...
         });
     }
 
@@ -111,8 +137,8 @@ class ChaseCashBackCal {
             categories.map(
                 c => result.push({
                     quarter: utils.getQuarterFromMonths(quarter),
-                    category: c
-                })
+                    category: c,
+                }),
             );
         }
         return result;
