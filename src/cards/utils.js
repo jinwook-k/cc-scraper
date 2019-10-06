@@ -7,15 +7,11 @@ class Utils {
      * @return {string|string[]} Either a list of trimmed innerTexts of nodes or just one trimmed string
      */
     static sanitizeNodes(nodes) {
-        if (nodes.length > 0) {
-            let result = [];
-            for (let node of nodes) {
-                result.push(node.textContent.trim());
-            }
-            return result;
-        } else {
-            return nodes.textContent.trim();
-        }
+        let result = [];
+        nodes.each(function(i, elem) {
+            result.push(elem.text().trim());
+        });
+        return result;
     };
 
     /**

@@ -15,54 +15,15 @@ class ChaseCashBackCal {
     /**
      * Creates an array of category dictionaries with associated quarters of cashback and faq terms.
      * @public
-     * @param {function} callback This will callback to the called function with the return value
      * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `terms` properties
      */
-    getCalendar(callback) {
-        request(CASHBACK_CAL_URL, (err, resp, body) => {
-            if (err) {
-                console.error('getCalendar: ', err);
-                return callback(err);
-            }
+    async getCal() {
+        let calendar = await this.getCalendar();
+        let terms = await this.getChaseCashBackFaqs();
 
-            const dom = new JSDOM(body);
-            const d = dom.window.document;
+        this.mergeCalAndFaqs(calendar, terms);
 
-            let tiles = d.querySelectorAll('.calendar .tile');
-            let calendar = this.makeDictionaryCalendar(tiles);
-            this.getChaseCashBackFaqs((error, faqs) => {
-                if (error) {
-                    console.error('getChaseCashBackFaqs: ', error);
-                    return callback(error);
-                }
-                let result = this.mergeCalAndFaqs(calendar, faqs);
-                return callback(null, result);
-            });
-        });
-    }
-
-    /**
-     *
-     * @public
-     */
-    async getPromiseCalendar() {
-        let options = {
-            uri: CASHBACK_CAL_URL,
-            transform: (body) => {
-                return cheerio.load(body);
-            }
-        };
-
-        return await rp(options)
-            .then(($) => {
-                let tiles = $('.calendar .tile').text();
-                let calendar = this.makeDictionaryCalendar(tiles);
-                console.log('trimmed: ', calendar);
-                return calendar;
-            })
-            .catch((err) => {
-                // Crawling failed...
-        });
+        return calendar;
     }
 
     /**
@@ -71,56 +32,64 @@ class ChaseCashBackCal {
      * @param {Object[]} faqs This will callback to the called function with the return value
      * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `info` properties
      */
-    mergeCalAndFaqs(cal, faqs) {
-        let result = [];
-        for (let calEle of cal) {
-            let sanitizedCatName = calEle.category.toLowerCase().replace(/\d/g, '');
+    mergeCalAndFaqs(calendar, terms) {
 
-            for (let faq of faqs) {
-                let sanitizedTitleName = faq.title.toLowerCase();
+        for (let quarter of calendar) {
 
-                if (sanitizedTitleName.includes(sanitizedCatName)) {
-                    result.push({
-                        quarter: calEle.quarter,
-                        category: utils.toTitleCase(sanitizedCatName),
-                        terms: faq.terms,
-                    });
-                    break;
+            let categories = [];
+            for (let cat of quarter.category) {
+                let catName = cat.toLowerCase().replace(/[^a-z\s]+/i, '');
+
+                for (let term of terms) {
+                    if (term.name.includes(catName)) {
+                        categories.push({
+                            name: catName,
+                            term: term.terms
+                        })
+                    }
                 }
+
             }
+            quarter['categories'] = categories;
         }
-        return result;
+
+        return calendar
     }
 
     /**
      * Get a list of category faqs in a data structure
-     * @private
+     * @public
      * @param {function} callback This will callback to the called function with the return value
      * @return {Object[]} categories Array of dictionaries with `title` and `terms` properties
      */
-    getChaseCashBackFaqs(callback) {
-        request(CASHBACK_FAQS, (err, resp, body) => {
-            if (err) {
-                console.error('getChaseCashBackFaqs: ', err);
-                return callback(err);
+    async getChaseCashBackFaqs() {
+        let options = {
+            uri: CASHBACK_FAQS,
+            transform: (body) => {
+                return cheerio.load(body);
             }
+        };
 
-            const dom = new JSDOM(body);
-            const d = dom.window.document;
-
+        return await rp(options).then(($) => {
             let categories = [];
-            let rows = d.querySelectorAll(FAQ_CATEGORY_SECTION);
-            for (let row of rows) {
-                let title = utils.sanitizeNodes(row.querySelector('h3'));
-                if (title.includes('category')) {
+
+            let rows = $('.row-sub-title');
+            rows.each(function(i, elem) {
+                let row = $(this).text().trim().toLowerCase();
+
+                if (row.includes('category')) {
+                    let data = $(this).data('target');
+                    let terms = $(data).text().trim();
+
                     categories.push({
-                        title,
-                        terms: utils.sanitizeNodes(row.querySelector('.inner')),
-                    });
+                        name: row,
+                        terms
+                    })
                 }
-            }
-            return callback(null, categories);
-        });
+            });
+
+            return categories;
+        }).catch();
     }
 
     /**
@@ -129,19 +98,33 @@ class ChaseCashBackCal {
      * @param {NodeList} tiles NodeList of tiles (class name of calendar objs for each quarter)
      * @return {Object[]} result Array of dictionaries with `quarter` and `category` properties
      */
-    makeDictionaryCalendar(tiles) {
-        let result = [];
-        for (let tile of tiles) {
-            let quarter = utils.sanitizeNodes(tile.querySelector('.top'));
-            let categories = utils.sanitizeNodes(tile.querySelectorAll('.middle h2'));
-            categories.map(
-                c => result.push({
-                    quarter: utils.getQuarterFromMonths(quarter),
-                    category: c,
-                }),
-            );
-        }
-        return result;
+    async getCalendar() {
+        let options = {
+            uri: CASHBACK_CAL_URL,
+            transform: (body) => {
+                return cheerio.load(body);
+            }
+        };
+
+        return await rp(options)
+        .then(($) => {
+            let tiles = $('.calendar .tile');
+            let cal = [];
+            tiles.each(function(i, elem) {
+                let quarterName = ($(this).children('.top').text().trim());
+                let categories = $(this).find('.middle h2').map(function() {return $(this).text()}).get();
+
+                cal.push({
+                    quarterName,
+                    quarter: utils.getQuarterFromMonths(quarterName),
+                    category: categories
+                });
+            });
+            return cal;
+        })
+        .catch((err) => {
+            // Crawling failed...
+        });
     }
 
 }
