@@ -14,7 +14,7 @@ class ChaseCashBackCal {
      * @public
      * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `terms` properties
      */
-    async getCal() {
+    async getCalendar() {
         let calendar = await this.getCategories();
         let terms = await this.getTermsAndConditions();
 

@@ -1,4 +1,4 @@
-const request = require('request');
+const rp = require('request-promise');
 const utils = require('./utils');
 
 const DISCOVER_CAL_URL = 'https://www.discover.com/credit-cards/cashback-bonus/data/offers.json';
@@ -9,19 +9,13 @@ class DiscoverCashBackCal {
     /**
      * Creates an array of category dictionaries with associated quarters of cash back and faq info.
      * @public
-     * @param {function} callback This will callback to the called function with the return value
      * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `info` properties
      */
-    getCalendar(callback) {
-        request(DISCOVER_CAL_URL, {json: true}, (err, resp, body) => {
-            if (err) {
-                console.error('getCalendar: ', err);
-                return callback(err);
-            }
+    async getCalendar() {
+        let categories = await this.requestBody(DISCOVER_CAL_URL);
+        let quarters = categories.quarters;
 
-            let sanitizeBody = this.sanitizeRawJson(body['quarters']);
-            return callback(null, sanitizeBody);
-        });
+        return this.filterQuarters(quarters);
     }
 
     /**
@@ -30,24 +24,35 @@ class DiscoverCashBackCal {
      * @param {Object[]} quarters Array of objects that hold info about each quarter, terms, and metadata
      * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `terms` properties
      */
-    sanitizeRawJson(quarters) {
-        let result = [];
+    filterQuarters(quarters) {
         let thisYear = (new Date()).getFullYear();
-
+        let calendar = [];
         for (let quarter of quarters) {
             let date = quarter['quarterLabelStartDate'];
-            let title = quarter['title'];
-            let terms = quarter['programTerms'];
 
             if (date.includes(thisYear)) {
-                result.push({
+                let title = quarter['title'];
+                let terms = quarter['programTerms'];
+
+                calendar.push({
                     quarter: utils.getQuarterFromMonths(date),
                     category: title,
                     terms,
                 })
             }
         }
-        return result;
+        return calendar;
+    }
+
+    async requestBody(url) {
+        let options = {
+            uri: DISCOVER_CAL_URL,
+            json: true // Automatically parses the JSON string in the response
+        };
+
+        return await rp(options).catch((err) => {
+            console.error(`Error: ${err}, when connecting to ${url}.`)
+        });
     }
 }
 

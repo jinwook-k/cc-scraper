@@ -2,9 +2,9 @@ const CHASE_CASHBACK = require("./cards/chase-cash-back");
 const DISCOVER_CASHBACK = require("./cards/discover-cash-back");
 
 
-module.exports.getDiscoverCashBackCal = (callback) => {
+module.exports.getDiscoverCashBackCal = async () => {
     let cal = new DISCOVER_CASHBACK();
-    return cal.getCalendar(callback);
+    return cal.getCalendar();
 };
 
 module.exports.getChaseCashBackCal = async () => {
@@ -14,7 +14,7 @@ module.exports.getChaseCashBackCal = async () => {
 
 async function testFunction() {
     let rpCal = new DISCOVER_CASHBACK();
-    return await rpCal.getCal();
+    return await rpCal.getCalendar();
 }
 
 testFunction().then((data) => {
