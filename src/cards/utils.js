@@ -1,20 +1,6 @@
 class Utils {
 
     /**
-     * Trims off excess whitespace within the texts of each node
-     * @public
-     * @param {Node|NodeList[]} nodes Either one or a list of nodes
-     * @return {string|string[]} Either a list of trimmed innerTexts of nodes or just one trimmed string
-     */
-    static sanitizeNodes(nodes) {
-        let result = [];
-        nodes.each(function(i, elem) {
-            result.push(elem.text().trim());
-        });
-        return result;
-    };
-
-    /**
      * Removes any numbers within a string
      * @public
      * @param {string} str A string with numbers usually in it
