@@ -13,7 +13,7 @@ module.exports.getChaseCashBackCal = async () => {
 };
 
 async function testFunction() {
-    let rpCal = new CHASE_CASHBACK();
+    let rpCal = new DISCOVER_CASHBACK();
     return await rpCal.getCal();
 }
 

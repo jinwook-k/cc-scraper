@@ -1,7 +1,7 @@
 const request = require('request');
 const utils = require('./utils');
 
-const DISCOVER_CAL_URL = 'https://www.discover.com/credit-cards/cashback-bonus/data/offers.json?_=1565454657740';
+const DISCOVER_CAL_URL = 'https://www.discover.com/credit-cards/cashback-bonus/data/offers.json';
 
 /* A class to get Discovers's 5% cash back information */
 class DiscoverCashBackCal {
