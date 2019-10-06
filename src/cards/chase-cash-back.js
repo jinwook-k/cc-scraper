@@ -1,9 +1,6 @@
-const request = require('request');
 const rp = require('request-promise');
 const cheerio = require('cheerio');
 const utils = require('./utils');
-const jsdom = require('jsdom');
-const { JSDOM } = jsdom;
 
 const CASHBACK_CAL_URL = 'https://creditcards.chase.com/freedom-credit-cards/calendar';
 const CASHBACK_FAQS = 'https://creditcards.chase.com/freedom-credit-cards/faq';
@@ -18,112 +15,101 @@ class ChaseCashBackCal {
      * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `terms` properties
      */
     async getCal() {
-        let calendar = await this.getCalendar();
-        let terms = await this.getChaseCashBackFaqs();
+        let calendar = await this.getCategories();
+        let terms = await this.getTermsAndConditions();
 
-        this.mergeCalAndFaqs(calendar, terms);
+        this.mergeCalAndTerms(calendar, terms);
 
         return calendar;
     }
 
     /**
-     * Creates an array of category dictionaries with associated quarters of cash back and faq info.
-     * @param {Object[]} cal This will callback to the called function with the return value
-     * @param {Object[]} faqs This will callback to the called function with the return value
-     * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `info` properties
+     * Creates an array of merged values from calendar of cash back and faq info.
+     * @param {Object[]} calendar Array of objects, {quarterName: string, quarter: int, category: string[]}
+     * @param {Object[]} terms Array of objects, {name: string, terms: string}
+     * @return {Object[]} result Array of merged values from Calendar and Terms
      */
-    mergeCalAndFaqs(calendar, terms) {
-
+    mergeCalAndTerms(calendar, terms) {
         for (let quarter of calendar) {
-
             let categories = [];
-            for (let cat of quarter.category) {
-                let catName = cat.toLowerCase().replace(/[^a-z\s]+/i, '');
-
+            for (let categoryName of quarter.categoryNames) {
                 for (let term of terms) {
-                    if (term.name.includes(catName)) {
+                    if (term.title.includes(categoryName)) {
                         categories.push({
-                            name: catName,
-                            term: term.terms
-                        })
+                            name: categoryName,
+                            term: term.term
+                        });
+                        break;
                     }
                 }
-
             }
             quarter['categories'] = categories;
         }
-
         return calendar
     }
 
     /**
      * Get a list of category faqs in a data structure
      * @public
-     * @param {function} callback This will callback to the called function with the return value
      * @return {Object[]} categories Array of dictionaries with `title` and `terms` properties
      */
-    async getChaseCashBackFaqs() {
-        let options = {
-            uri: CASHBACK_FAQS,
-            transform: (body) => {
-                return cheerio.load(body);
+    async getTermsAndConditions() {
+        let $ = await this.requestBody(CASHBACK_FAQS);
+        let terms = [];
+        let rows = $('.row-sub-title');
+
+        rows.each(function() {
+            let row = $(this).text().trim().toLowerCase();
+
+            if (row.includes('category')) {
+                let rowId = $(this).data('target');
+                let term = $(rowId).text().trim();
+
+                terms.push({
+                    title: row,
+                    term
+                })
             }
-        };
+        });
 
-        return await rp(options).then(($) => {
-            let categories = [];
-
-            let rows = $('.row-sub-title');
-            rows.each(function(i, elem) {
-                let row = $(this).text().trim().toLowerCase();
-
-                if (row.includes('category')) {
-                    let data = $(this).data('target');
-                    let terms = $(data).text().trim();
-
-                    categories.push({
-                        name: row,
-                        terms
-                    })
-                }
-            });
-
-            return categories;
-        }).catch();
+        return terms;
     }
 
     /**
      * Makes a list of dictionaries based on each quarter which will include all the categories
      * @private
-     * @param {NodeList} tiles NodeList of tiles (class name of calendar objs for each quarter)
      * @return {Object[]} result Array of dictionaries with `quarter` and `category` properties
      */
-    async getCalendar() {
+    async getCategories() {
+        let $ = await this.requestBody(CASHBACK_CAL_URL);
+        let tiles = $('.calendar .tile');
+        let cal = [];
+
+        tiles.each(function() {
+            let quarterName = ($(this).children('.top').text().trim());
+            let categoryNames = $(this).find('.middle h2').map(function() {
+                return utils.lettersOnly($(this).text());
+            }).get();
+
+            cal.push({
+                quarterName,
+                quarter: utils.getQuarterFromMonths(quarterName),
+                categoryNames
+            });
+        });
+        return cal;
+    }
+
+    async requestBody(url) {
         let options = {
-            uri: CASHBACK_CAL_URL,
+            uri: url,
             transform: (body) => {
                 return cheerio.load(body);
             }
         };
 
-        return await rp(options)
-        .then(($) => {
-            let tiles = $('.calendar .tile');
-            let cal = [];
-            tiles.each(function(i, elem) {
-                let quarterName = ($(this).children('.top').text().trim());
-                let categories = $(this).find('.middle h2').map(function() {return $(this).text()}).get();
-
-                cal.push({
-                    quarterName,
-                    quarter: utils.getQuarterFromMonths(quarterName),
-                    category: categories
-                });
-            });
-            return cal;
-        })
-        .catch((err) => {
-            // Crawling failed...
+        return await rp(options).catch((err) => {
+            console.error(`Error: ${err}, when connecting to ${url}.`)
         });
     }
 

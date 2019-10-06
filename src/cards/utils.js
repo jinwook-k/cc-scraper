@@ -20,8 +20,8 @@ class Utils {
      * @param {string} str A string with numbers usually in it
      * @return {string} str A string without the numbers
      */
-    static removeNumsInStr(str) {
-        return str.replace(/\d/g, '');
+    static lettersOnly(str) {
+        return str.toLowerCase().replace(/[^a-z\s]+/i, '');
     }
 
     /**
