@@ -9,11 +9,11 @@ module.exports.getDiscoverCashBackCal = async () => {
 
 module.exports.getChaseCashBackCal = async () => {
     let rpCal = new CHASE_CASHBACK();
-    return await rpCal.getCal();
+    return await rpCal.getCalendar();
 };
 
 async function testFunction() {
-    let rpCal = new DISCOVER_CASHBACK();
+    let rpCal = new CHASE_CASHBACK();
     return await rpCal.getCalendar();
 }
 

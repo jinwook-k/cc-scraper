@@ -36,7 +36,7 @@ class ChaseCashBackCal {
                 for (let term of terms) {
                     if (term.title.includes(categoryName)) {
                         categories.push({
-                            name: categoryName,
+                            name: utils.toTitleCase(categoryName),
                             term: term.term
                         });
                         break;
@@ -44,6 +44,7 @@ class ChaseCashBackCal {
                 }
             }
             quarter['categories'] = categories;
+            console.log('categories: ', categories);
         }
         return calendar
     }
