@@ -47,7 +47,7 @@ class DiscoverCashBackCal {
     async requestBody(url) {
         let options = {
             uri: DISCOVER_CAL_URL,
-            json: true // Automatically parses the JSON string in the response
+            json: true
         };
 
         return await rp(options).catch((err) => {

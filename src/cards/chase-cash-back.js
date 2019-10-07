@@ -44,7 +44,6 @@ class ChaseCashBackCal {
                 }
             }
             quarter['categories'] = categories;
-            console.log('categories: ', categories);
         }
         return calendar
     }
