@@ -1,10 +1,10 @@
 class Utils {
 
     /**
-     * Removes any numbers within a string
+     * Removes any numbers and special characters within a string
      * @public
      * @param {string} str A string with numbers usually in it
-     * @return {string} str A string without the numbers
+     * @return {string} str A string with only letters
      */
     static lettersOnly(str) {
         return str.toLowerCase().replace(/[^a-z\s]+/i, '');

@@ -7,9 +7,9 @@ const DISCOVER_CAL_URL = 'https://www.discover.com/credit-cards/cashback-bonus/d
 class DiscoverCashBackCal {
 
     /**
-     * Creates an array of category dictionaries with associated quarters of cash back and faq info.
+     * Gets all the information of the discover 5% calendar
      * @public
-     * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `info` properties
+     * @return {Object[]} an array of each quarter with categories/terms of conditions
      */
     async getCalendar() {
         let categories = await this.requestBody(DISCOVER_CAL_URL);
@@ -19,10 +19,10 @@ class DiscoverCashBackCal {
     }
 
     /**
-     * Creates an array of category dictionaries with associated quarters of cash back and faq info.
-     * @public
-     * @param {Object[]} quarters Array of objects that hold info about each quarter, terms, and metadata
-     * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `terms` properties
+     * Helper Method: filters each quarter object to get the keys needed
+     * @private
+     * @param {Object[]} quarters Array of quarters and the metadata
+     * @return {Object[]} calendar Array quarters with filtered keys
      */
     filterQuarters(quarters) {
         let thisYear = (new Date()).getFullYear();
@@ -44,9 +44,15 @@ class DiscoverCashBackCal {
         return calendar;
     }
 
+    /**
+     * Makes a get request to a web page from the url passed
+     * @private
+     * @param {string} url The URL to scrape data from the web page
+     * @return {Object} $ The body of web page
+     */
     async requestBody(url) {
         let options = {
-            uri: DISCOVER_CAL_URL,
+            uri: url,
             json: true
         };
 
