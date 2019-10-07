@@ -1,53 +1,64 @@
-const request = require('request');
+const rp = require('request-promise');
 const utils = require('./utils');
 
-const DISCOVER_CAL_URL = 'https://www.discover.com/credit-cards/cashback-bonus/data/offers.json?_=1565454657740';
+const DISCOVER_CAL_URL = 'https://www.discover.com/credit-cards/cashback-bonus/data/offers.json';
 
 /* A class to get Discovers's 5% cash back information */
 class DiscoverCashBackCal {
 
     /**
-     * Creates an array of category dictionaries with associated quarters of cash back and faq info.
+     * Gets all the information of the discover 5% calendar
      * @public
-     * @param {function} callback This will callback to the called function with the return value
-     * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `info` properties
+     * @return {Object[]} an array of each quarter with categories/terms of conditions
      */
-    getCalendar(callback) {
-        request(DISCOVER_CAL_URL, {json: true}, (err, resp, body) => {
-            if (err) {
-                console.error('getCalendar: ', err);
-                return callback(err);
-            }
+    async getCalendar() {
+        let categories = await this.requestBody(DISCOVER_CAL_URL);
+        let quarters = categories.quarters;
 
-            let sanitizeBody = this.sanitizeRawJson(body['quarters']);
-            return callback(null, sanitizeBody);
-        });
+        return this.filterQuarters(quarters);
     }
 
     /**
-     * Creates an array of category dictionaries with associated quarters of cash back and faq info.
-     * @public
-     * @param {Object[]} quarters Array of objects that hold info about each quarter, terms, and metadata
-     * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `terms` properties
+     * Helper Method: filters each quarter object to get the keys needed
+     * @private
+     * @param {Object[]} quarters Array of quarters and the metadata
+     * @return {Object[]} calendar Array quarters with filtered keys
      */
-    sanitizeRawJson(quarters) {
-        let result = [];
+    filterQuarters(quarters) {
         let thisYear = (new Date()).getFullYear();
-
+        let calendar = [];
         for (let quarter of quarters) {
             let date = quarter['quarterLabelStartDate'];
-            let title = quarter['title'];
-            let terms = quarter['programTerms'];
 
             if (date.includes(thisYear)) {
-                result.push({
+                let title = quarter['title'];
+                let terms = quarter['programTerms'];
+
+                calendar.push({
                     quarter: utils.getQuarterFromMonths(date),
                     category: title,
                     terms,
                 })
             }
         }
-        return result;
+        return calendar;
+    }
+
+    /**
+     * Makes a get request to a web page from the url passed
+     * @private
+     * @param {string} url The URL to scrape data from the web page
+     * @return {Object} $ The body of web page
+     */
+    async requestBody(url) {
+        let options = {
+            uri: url,
+            json: true
+        };
+
+        return await rp(options).catch((err) => {
+            console.error(`Error: ${err}, when connecting to ${url}.`)
+        });
     }
 }
 

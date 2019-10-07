@@ -1,32 +1,13 @@
-
 class Utils {
 
     /**
-     * Trims off excess whitespace within the texts of each node
-     * @public
-     * @param {Node|NodeList[]} nodes Either one or a list of nodes
-     * @return {string|string[]} Either a list of trimmed innerTexts of nodes or just one trimmed string
-     */
-    static sanitizeNodes(nodes) {
-        if (nodes.length > 0) {
-            let result = [];
-            for (let node of nodes) {
-                result.push(node.textContent.trim());
-            }
-            return result;
-        } else {
-            return nodes.textContent.trim();
-        }
-    };
-
-    /**
-     * Removes any numbers within a string
+     * Removes any numbers and special characters within a string
      * @public
      * @param {string} str A string with numbers usually in it
-     * @return {string} str A string without the numbers
+     * @return {string} str A string with only letters
      */
-    static removeNumsInStr(str) {
-        return str.replace(/\d/g, '');
+    static lettersOnly(str) {
+        return str.toLowerCase().replace(/[^a-z\s]+/i, '');
     }
 
     /**
@@ -60,7 +41,6 @@ class Utils {
             return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
         });
     }
-
 
 }
 

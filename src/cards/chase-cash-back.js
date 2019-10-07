@@ -1,7 +1,6 @@
-const request = require('request');
+const rp = require('request-promise');
+const cheerio = require('cheerio');
 const utils = require('./utils');
-const jsdom = require('jsdom');
-const { JSDOM } = jsdom;
 
 const CASHBACK_CAL_URL = 'https://creditcards.chase.com/freedom-credit-cards/calendar';
 const CASHBACK_FAQS = 'https://creditcards.chase.com/freedom-credit-cards/faq';
@@ -11,113 +10,115 @@ const FAQ_CATEGORY_SECTION = '#row2 .row-sub-section';
 class ChaseCashBackCal {
 
     /**
-     * Creates an array of category dictionaries with associated quarters of cashback and faq terms.
+     * Gets all the information of the chase 5% calendar
      * @public
-     * @param {function} callback This will callback to the called function with the return value
-     * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `terms` properties
+     * @return {Object[]} calendar An array of each quarter with categories/terms of conditions
      */
-    getCalendar(callback) {
-        request(CASHBACK_CAL_URL, (err, resp, body) => {
-            if (err) {
-                console.error('getCalendar: ', err);
-                return callback(err);
-            }
+    async getCalendar() {
+        let calendar = await this.getCategories();
+        let terms = await this.getTermsAndConditions();
 
-            const dom = new JSDOM(body);
-            const d = dom.window.document;
+        this.mergeCalAndTerms(calendar, terms);
 
-            let tiles = d.querySelectorAll('.calendar .tile');
-            let calendar = this.makeDictionaryCalendar(tiles);
-            this.getChaseCashBackFaqs((error, faqs) => {
-                if (error) {
-                    console.error('getChaseCashBackFaqs: ', error);
-                    return callback(error);
+        return calendar;
+    }
+
+    /**
+     * Helper Method: merges faq terms and quarter details using the category as the key
+     * @private
+     * @param {Object[]} calendar Array of quarter objects, [{quarterName: string, quarter: int, category: string[]}]
+     * @param {Object[]} terms Array of term objects, [{name: string, terms: string}]
+     * @return {Object[]} calender Mutated calendar array of merged values from Calendar and Terms
+     */
+    mergeCalAndTerms(calendar, terms) {
+        for (let quarter of calendar) {
+            let categories = [];
+            for (let categoryName of quarter.categoryNames) {
+                for (let term of terms) {
+                    if (term.title.includes(categoryName)) {
+                        categories.push({
+                            name: utils.toTitleCase(categoryName),
+                            term: term.term
+                        });
+                        break;
+                    }
                 }
-                let result = this.mergeCalAndFaqs(calendar, faqs);
-                return callback(null, result);
+            }
+            quarter['categories'] = categories;
+        }
+        return calendar
+    }
+
+    /**
+     * Get a list of terms and condition faqs objects
+     * @private
+     * @return {Object[]} categories Array of terms and condition faqs
+     */
+    async getTermsAndConditions() {
+        let $ = await this.requestBody(CASHBACK_FAQS);
+        let terms = [];
+        let rows = $('.row-sub-title');
+
+        rows.each(function() {
+            let row = $(this).text().trim().toLowerCase();
+
+            if (row.includes('category')) {
+                let rowId = $(this).data('target');
+                let term = $(rowId).text().trim();
+
+                terms.push({
+                    title: row,
+                    term
+                })
+            }
+        });
+
+        return terms;
+    }
+
+    /**
+     * Get a list of categories
+     * @private
+     * @return {Object[]} cal Array of categories to represent a calendar
+     */
+    async getCategories() {
+        let $ = await this.requestBody(CASHBACK_CAL_URL);
+        let tiles = $('.calendar .tile');
+        let cal = [];
+
+        tiles.each(function() {
+            let quarterName = ($(this).children('.top').text().trim());
+            let categoryNames = $(this).find('.middle h2').map(function() {
+                return utils.lettersOnly($(this).text());
+            }).get();
+
+            cal.push({
+                quarterName,
+                quarter: utils.getQuarterFromMonths(quarterName),
+                categoryNames
             });
         });
+        return cal;
     }
 
     /**
-     * Creates an array of category dictionaries with associated quarters of cash back and faq info.
-     * @param {Object[]} cal This will callback to the called function with the return value
-     * @param {Object[]} faqs This will callback to the called function with the return value
-     * @return {Object[]} result Array of dictionaries with `quarter`, `category`, and `info` properties
-     */
-    mergeCalAndFaqs(cal, faqs) {
-        let result = [];
-        for (let calEle of cal) {
-            let sanitizedCatName = calEle.category.toLowerCase().replace(/\d/g, '');
-
-            for (let faq of faqs) {
-                let sanitizedTitleName = faq.title.toLowerCase();
-
-                if (sanitizedTitleName.includes(sanitizedCatName)) {
-                    result.push({
-                        quarter: calEle.quarter,
-                        category: utils.toTitleCase(sanitizedCatName),
-                        terms: faq.terms,
-                    });
-                    break;
-                }
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Get a list of category faqs in a data structure
+     * Makes a get request to a web page from the url passed
      * @private
-     * @param {function} callback This will callback to the called function with the return value
-     * @return {Object[]} categories Array of dictionaries with `title` and `terms` properties
+     * @param {string} url The URL to scrape data from the web page
+     * @return {Object} $ The body of web page
      */
-    getChaseCashBackFaqs(callback) {
-        request(CASHBACK_FAQS, (err, resp, body) => {
-            if (err) {
-                console.error('getChaseCashBackFaqs: ', err);
-                return callback(err);
+    async requestBody(url) {
+        let options = {
+            uri: url,
+            transform: (body) => {
+                return cheerio.load(body);
             }
+        };
 
-            const dom = new JSDOM(body);
-            const d = dom.window.document;
-
-            let categories = [];
-            let rows = d.querySelectorAll(FAQ_CATEGORY_SECTION);
-            for (let row of rows) {
-                let title = utils.sanitizeNodes(row.querySelector('h3'));
-                if (title.includes('category')) {
-                    categories.push({
-                        title,
-                        terms: utils.sanitizeNodes(row.querySelector('.inner')),
-                    });
-                }
-            }
-            return callback(null, categories);
+        return await rp(options).catch((err) => {
+            console.error(`Error: ${err}, when connecting to ${url}.`)
         });
     }
-
-    /**
-     * Makes a list of dictionaries based on each quarter which will include all the categories
-     * @private
-     * @param {NodeList} tiles NodeList of tiles (class name of calendar objs for each quarter)
-     * @return {Object[]} result Array of dictionaries with `quarter` and `category` properties
-     */
-    makeDictionaryCalendar(tiles) {
-        let result = [];
-        for (let tile of tiles) {
-            let quarter = utils.sanitizeNodes(tile.querySelector('.top'));
-            let categories = utils.sanitizeNodes(tile.querySelectorAll('.middle h2'));
-            categories.map(
-                c => result.push({
-                    quarter: utils.getQuarterFromMonths(quarter),
-                    category: c
-                })
-            );
-        }
-        return result;
-    }
-
 }
 
 module.exports = ChaseCashBackCal;

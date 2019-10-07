@@ -1,11 +1,11 @@
 {
   "name": "cc-scraper",
-  "version": "0.0.31",
+  "version": "0.1.0",
   "description": "This module will help you get information you need about credit card points based on the categories, cashback calendars, etc.",
   "main": "src/index.js",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/JinwookKim/cc-scraper"
+    "type": "git",
+    "url": "https://github.com/JinwookKim/cc-scraper"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,7 +13,8 @@
   "author": "Jinwook Kim",
   "license": "MIT",
   "dependencies": {
-    "jsdom": "^15.1.1",
-    "request": "^2.88.0"
+    "cheerio": "^1.0.0-rc.3",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4"
   }
 }
