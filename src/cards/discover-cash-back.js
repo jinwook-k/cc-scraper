@@ -25,21 +25,20 @@ class DiscoverCashBackCal {
      * @return {Object[]} calendar Array quarters with filtered keys
      */
     filterQuarters(quarters) {
-        let thisYear = (new Date()).getFullYear();
         let calendar = [];
         for (let quarter of quarters) {
-            let date = quarter['quarterLabelStartDate'];
+            let startDate = quarter['quarterLabelStartDate'];
+            let endDate = quarter['quarterLabelEndDate'];
+            let title = quarter['title'];
+            let terms = quarter['programTerms'];
 
-            if (date.includes(thisYear)) {
-                let title = quarter['title'];
-                let terms = quarter['programTerms'];
-
-                calendar.push({
-                    quarter: utils.getQuarterFromMonths(date),
-                    category: title,
-                    terms,
-                })
-            }
+            calendar.push({
+                quarter: utils.getQuarterFromMonths(startDate),
+                startDate,
+                endDate,
+                category: title,
+                terms,
+            });
         }
         return calendar;
     }
@@ -53,11 +52,11 @@ class DiscoverCashBackCal {
     async requestBody(url) {
         let options = {
             uri: url,
-            json: true
+            json: true,
         };
 
         return await rp(options).catch((err) => {
-            console.error(`Error: ${err}, when connecting to ${url}.`)
+            console.error(`Error: ${err}, when connecting to ${url}.`);
         });
     }
 }
