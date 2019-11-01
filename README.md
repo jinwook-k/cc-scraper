@@ -50,22 +50,36 @@ chase_result = [ { quarterName: 'January - March',
                    categoryNames: [ 'department stores', 'paypal', 'chase pay' ],
                    categories: [ [Object], [Object], [Object] ] } ]
 
-discover_result = [ { quarter: 1,
-                      category: 'Grocery Stores',
-                      terms:
-                       'blah blah terms...' },
-                    { quarter: 2,
-                      category: 'Gas Stations, Uber and Lyft',
-                      terms:
-                       'blah blah terms...' },
-                    { quarter: 3,
-                      category: 'Restaurants and PayPal',
-                      terms:
-                       'blah blah terms...' },
-                    { quarter: 4,
-                      category: 'Amazon.com, Target and Walmart.com',
-                      terms:
-                       'blah blah terms...' } ]
+discover_result = discover_result = [ { quarter: 4,
+                                        startDate: 'October 1, 2019',
+                                        endDate: 'December 31, 2019',
+                                        category: 'Amazon.com, Target and Walmart.com',
+                                        terms:
+                                         '[terms and services in html]' },
+                                      { quarter: 1,
+                                        startDate: 'January 1, 2020',
+                                        endDate: 'March 31, 2020',
+                                        category: 'Grocery Stores, Walgreens and CVS',
+                                        terms:
+                                         '[terms and services in html]' },
+                                      { quarter: 2,
+                                        startDate: 'April 1, 2020',
+                                        endDate: 'June 30, 2020',
+                                        category: 'Gas Stations, Uber, Lyft and Wholesale Clubs',
+                                        terms:
+                                         '[terms and services in html]' },
+                                      { quarter: 3,
+                                        startDate: 'July 1, 2020',
+                                        endDate: 'September 30, 2020',
+                                        category: 'Restaurants and PayPal',
+                                        terms:
+                                         '[terms and services in html]' },
+                                      { quarter: 4,
+                                        startDate: 'October 1, 2020',
+                                        endDate: 'December 31, 2020',
+                                        category: 'Amazon.com, Walmart.com and Target.com',
+                                        terms:
+                                         '[terms and services in html]' } ]
 
 ```
 Quarter 1: January - March  
