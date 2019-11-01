@@ -40,6 +40,7 @@ class DiscoverCashBackCal {
                 terms,
             });
         }
+        console.log(calendar);
         return calendar;
     }
 
