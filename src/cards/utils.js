@@ -20,13 +20,25 @@ class Utils {
     static getQuarterFromMonths(dateRange) {
         dateRange = dateRange.toLowerCase();
         if (dateRange.includes('jan') || dateRange.includes('mar')) {
-            return 1;
+            return {
+                num: 1,
+                range: 'Jan - Mar'
+            };
         } else if (dateRange.includes('apr') || dateRange.includes('jun')) {
-            return 2;
+            return {
+                num: 2,
+                range: 'Apr - Jun'
+            };
         } else if (dateRange.includes('jul') || dateRange.includes('sep')) {
-            return 3;
+            return {
+                num: 3,
+                range: 'Jul - Sep'
+            };
         } else if (dateRange.includes('oct') || dateRange.includes('dec')) {
-            return 4;
+            return {
+                num: 4,
+                range: 'Oct - Dec'
+            };
         }
     }
 

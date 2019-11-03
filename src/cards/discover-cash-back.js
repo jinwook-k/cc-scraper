@@ -29,6 +29,7 @@ class DiscoverCashBackCal {
         for (let quarter of quarters) {
             let startDate = quarter['quarterLabelStartDate'];
             let endDate = quarter['quarterLabelEndDate'];
+            let year = new Date(startDate).getFullYear();
             let title = quarter['title'];
             let terms = quarter['programTerms'];
 
@@ -36,11 +37,11 @@ class DiscoverCashBackCal {
                 quarter: utils.getQuarterFromMonths(startDate),
                 startDate,
                 endDate,
+                year,
                 category: title,
                 terms,
             });
         }
-        console.log(calendar);
         return calendar;
     }
 

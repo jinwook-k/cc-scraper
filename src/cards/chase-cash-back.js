@@ -18,7 +18,7 @@ class ChaseCashBackCal {
         let calendar = await this.getCategories();
         let terms = await this.getTermsAndConditions();
 
-        this.mergeCalAndTerms(calendar, terms);
+        this.mergeCalInfo(calendar, terms);
 
         return calendar;
     }
@@ -30,7 +30,7 @@ class ChaseCashBackCal {
      * @param {Object[]} terms Array of term objects, [{name: string, terms: string}]
      * @return {Object[]} calender Mutated calendar array of merged values from Calendar and Terms
      */
-    mergeCalAndTerms(calendar, terms) {
+    mergeCalInfo(calendar, terms) {
         for (let quarter of calendar) {
             let categories = [];
             for (let categoryName of quarter.categoryNames) {
@@ -38,7 +38,7 @@ class ChaseCashBackCal {
                     if (term.title.includes(categoryName)) {
                         categories.push({
                             name: utils.toTitleCase(categoryName),
-                            term: term.term
+                            term: term.term,
                         });
                         break;
                     }
@@ -64,7 +64,7 @@ class ChaseCashBackCal {
 
             if (row.includes('category')) {
                 let rowId = $(this).data('target');
-                let term = $(rowId).text().trim();
+                let term = $(rowId + ' p').html().trim();
 
                 terms.push({
                     title: row,
@@ -94,6 +94,7 @@ class ChaseCashBackCal {
 
             cal.push({
                 quarterName,
+                year: new Date().getFullYear(),
                 quarter: utils.getQuarterFromMonths(quarterName),
                 categoryNames
             });
