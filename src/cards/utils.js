@@ -22,22 +22,22 @@ class Utils {
         if (dateRange.includes('jan') || dateRange.includes('mar')) {
             return {
                 num: 1,
-                name: 'Jan - Mar'
+                range: 'Jan - Mar'
             };
         } else if (dateRange.includes('apr') || dateRange.includes('jun')) {
             return {
                 num: 2,
-                name: 'Apr - Jun'
+                range: 'Apr - Jun'
             };
         } else if (dateRange.includes('jul') || dateRange.includes('sep')) {
             return {
                 num: 3,
-                name: 'Jul - Sep'
+                range: 'Jul - Sep'
             };
         } else if (dateRange.includes('oct') || dateRange.includes('dec')) {
             return {
                 num: 4,
-                name: 'Oct - Dec'
+                range: 'Oct - Dec'
             };
         }
     }
