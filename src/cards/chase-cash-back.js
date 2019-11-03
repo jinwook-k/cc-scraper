@@ -64,7 +64,7 @@ class ChaseCashBackCal {
 
             if (row.includes('category')) {
                 let rowId = $(this).data('target');
-                let term = $(rowId).text().trim();
+                let term = $(rowId + ' p').html().trim();
 
                 terms.push({
                     title: row,
