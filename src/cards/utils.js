@@ -15,28 +15,32 @@ class Utils {
      * @public
      * @param {string} dateRange A string that is within a 3 month range
      *  i.e. "January - March"
-     * @return {number} a number representing the numeric value of the quarterly month range
+     * @return {{num: number, range: string}} a number representing the numeric value of the quarterly month range
      */
     static getQuarterFromMonths(dateRange) {
         dateRange = dateRange.toLowerCase();
         if (dateRange.includes('jan') || dateRange.includes('mar')) {
             return {
                 num: 1,
+                monthRange: [1,2,3],
                 range: 'Jan - Mar'
             };
         } else if (dateRange.includes('apr') || dateRange.includes('jun')) {
             return {
                 num: 2,
+                monthRange: [4,5,6],
                 range: 'Apr - Jun'
             };
         } else if (dateRange.includes('jul') || dateRange.includes('sep')) {
             return {
                 num: 3,
+                monthRange: [7,8,9],
                 range: 'Jul - Sep'
             };
         } else if (dateRange.includes('oct') || dateRange.includes('dec')) {
             return {
                 num: 4,
+                monthRange: [10,11,12],
                 range: 'Oct - Dec'
             };
         }
