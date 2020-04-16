@@ -44,7 +44,15 @@ class ChaseCashBackCal {
                     }
                 }
             }
-            quarter['categories'] = categories;
+            if (categories.length === 0) {
+                quarter['categories'] = {
+                    name: "Coming Soon!",
+                    term: "Please wait for an update..."
+                }
+            }
+            else {
+                quarter['categories'] = categories;
+            }
         }
         return calendar
     }
@@ -89,7 +97,7 @@ class ChaseCashBackCal {
         tiles.each(function() {
             let quarterName = ($(this).children('.top').text().trim());
             let categoryNames = $(this).find('.middle h2').map(function() {
-                return utils.lettersOnly($(this).text());
+                return $(this).text().toLowerCase();
             }).get();
 
             cal.push({
