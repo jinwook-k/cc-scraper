@@ -2,21 +2,24 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 const CHASE_ALL_CARDS = 'https://creditcards.chase.com/all-credit-cards';
+const CHASE_DOMAIN = "https://creditcards.chase.com";
 
 class AllChaseCards {
 
     async getBody() {
         let $ = cheerio.load((await this.requestBody(CHASE_ALL_CARDS)).data);
         let titles = $(".card-art");
-        let cardLink, title;
         let cards = [];
         titles.each(function () {
-            title = ($(this).find('.name-link').text().trim());
-            cardLink = ($(this).find('.art-link img').attr('src'));
+            let title = $(this).find('.name-link').text().trim();
+            let cardLink = $(this).find('.art-link img').attr('src');
+            let learnMorePath = $(this).find("a[data-lh-name=LearnMore]").attr('href');
+            console.log('learnMore: ', learnMorePath);
 
             cards.push({
                 name: title,
-                link: cardLink
+                link: `${CHASE_DOMAIN}${cardLink}`,
+                learnMore: `${CHASE_DOMAIN}${learnMorePath}`
             })
         });
 

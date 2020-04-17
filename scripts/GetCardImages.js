@@ -5,7 +5,6 @@ const utils = require('../src/cards/utils');
 const chaseFuncs = require('../src/cards/chase');
 const CHASE_DOMAIN = "https://creditcards.chase.com";
 
-
 async function main() {
     let chase = new chaseFuncs();
     let cards = await chase.getBody();
