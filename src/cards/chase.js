@@ -6,19 +6,18 @@ const CHASE_DOMAIN = "https://creditcards.chase.com";
 
 class AllChaseCards {
 
-    async getBody() {
+    async getCards() {
         let $ = cheerio.load((await this.requestBody(CHASE_ALL_CARDS)).data);
         let titles = $(".card-art");
         let cards = [];
         titles.each(function () {
             let title = $(this).find('.name-link').text().trim();
-            let cardLink = $(this).find('.art-link img').attr('src');
+            let imageLink = $(this).find('.art-link img').attr('src');
             let learnMorePath = $(this).find("a[data-lh-name=LearnMore]").attr('href');
-            console.log('learnMore: ', learnMorePath);
 
             cards.push({
                 name: title,
-                link: `${CHASE_DOMAIN}${cardLink}`,
+                link: `${CHASE_DOMAIN}${imageLink}`,
                 learnMore: `${CHASE_DOMAIN}${learnMorePath}`
             })
         });
