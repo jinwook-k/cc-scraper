@@ -1,5 +1,6 @@
 const rp = require('request-promise');
 const utils = require('./utils');
+const axios = require('axios');
 
 const DISCOVER_CAL_URL = 'https://www.discover.com/credit-cards/cashback-bonus/data/offers.json';
 
@@ -13,7 +14,7 @@ class DiscoverCashBackCal {
      */
     async getCalendar() {
         let categories = await this.requestBody(DISCOVER_CAL_URL);
-        let quarters = categories.quarters;
+        let quarters = categories.data.quarters;
 
         return this.filterQuarters(quarters);
     }
@@ -52,12 +53,7 @@ class DiscoverCashBackCal {
      * @return {Object} $ The body of web page
      */
     async requestBody(url) {
-        let options = {
-            uri: url,
-            json: true,
-        };
-
-        return await rp(options).catch((err) => {
+        return await axios.get(url).catch((err) => {
             console.error(`Error: ${err}, when connecting to ${url}.`);
         });
     }

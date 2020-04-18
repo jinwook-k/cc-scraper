@@ -8,13 +8,12 @@
     "url": "https://github.com/JinwookKim/cc-scraper"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test/chase-cash-back.js"
   },
   "author": "Jinwook Kim",
   "license": "MIT",
   "dependencies": {
-    "cheerio": "^1.0.0-rc.3",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.4"
+    "axios": "^0.19.2",
+    "cheerio": "^1.0.0-rc.3"
   }
 }
