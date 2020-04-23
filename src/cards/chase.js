@@ -6,6 +6,11 @@ const CHASE_DOMAIN = "https://creditcards.chase.com";
 
 class AllChaseCards {
 
+    /**
+     * Gets a list of cards
+     * @public
+     * @return {list} cards List of JSON object with card info
+     */
     async getCards() {
         let $ = cheerio.load((await this.requestBody(CHASE_ALL_CARDS)).data);
         let titles = $(".card-art");
