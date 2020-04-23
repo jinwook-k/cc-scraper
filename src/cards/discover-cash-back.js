@@ -1,6 +1,5 @@
-const rp = require('request-promise');
-const utils = require('./utils');
 const axios = require('axios');
+const utils = require('./utils');
 
 const DISCOVER_CAL_URL = 'https://www.discover.com/credit-cards/cashback-bonus/data/offers.json';
 
