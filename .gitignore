@@ -1,5 +1,6 @@
 .idea
 .vs
 .DS_Store
+images
 node_modules
 package-lock.json

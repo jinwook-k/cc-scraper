@@ -1,10 +1,9 @@
-const rp = require('request-promise');
+const axios = require("axios");
 const cheerio = require('cheerio');
 const utils = require('./utils');
 
 const CASHBACK_CAL_URL = 'https://creditcards.chase.com/freedom-credit-cards/calendar';
 const CASHBACK_FAQS = 'https://creditcards.chase.com/freedom-credit-cards/faq';
-const FAQ_CATEGORY_SECTION = '#row2 .row-sub-section';
 
 /* A class to get Chase's 5% cash back information */
 class ChaseCashBackCal {
@@ -49,8 +48,7 @@ class ChaseCashBackCal {
                     name: "Coming Soon!",
                     term: "Please wait for an update..."
                 }
-            }
-            else {
+            } else {
                 quarter['categories'] = categories;
             }
         }
@@ -63,11 +61,11 @@ class ChaseCashBackCal {
      * @return {Object[]} categories Array of terms and condition faqs
      */
     async getTermsAndConditions() {
-        let $ = await this.requestBody(CASHBACK_FAQS);
+        let $ = cheerio.load((await this.requestBody(CASHBACK_FAQS)).data);
         let terms = [];
         let rows = $('.row-sub-title');
 
-        rows.each(function() {
+        rows.each(function () {
             let row = $(this).text().trim().toLowerCase();
 
             if (row.includes('category')) {
@@ -90,13 +88,13 @@ class ChaseCashBackCal {
      * @return {Object[]} cal Array of categories to represent a calendar
      */
     async getCategories() {
-        let $ = await this.requestBody(CASHBACK_CAL_URL);
+        let $ = cheerio.load((await this.requestBody(CASHBACK_CAL_URL)).data);
         let tiles = $('.calendar .tile');
         let cal = [];
 
-        tiles.each(function() {
+        tiles.each(function () {
             let quarterName = ($(this).children('.top').text().trim());
-            let categoryNames = $(this).find('.middle h2').map(function() {
+            let categoryNames = $(this).find('.middle h2').map(function () {
                 return $(this).text().toLowerCase();
             }).get();
 
@@ -117,14 +115,7 @@ class ChaseCashBackCal {
      * @return {Object} $ The body of web page
      */
     async requestBody(url) {
-        let options = {
-            uri: url,
-            transform: (body) => {
-                return cheerio.load(body);
-            }
-        };
-
-        return await rp(options).catch((err) => {
+        return await axios.get(url).catch((err) => {
             console.error(`Error: ${err}, when connecting to ${url}.`)
         });
     }
