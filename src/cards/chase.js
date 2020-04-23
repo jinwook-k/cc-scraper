@@ -1,5 +1,6 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
+const utils = require('./utils');
 
 const CHASE_ALL_CARDS = 'https://creditcards.chase.com/all-credit-cards';
 const CHASE_DOMAIN = "https://creditcards.chase.com";
@@ -22,6 +23,7 @@ class AllChaseCards {
 
             cards.push({
                 name: title,
+                imgName: utils.lettersOnly(title).toLowerCase(),
                 link: `${CHASE_DOMAIN}${imageLink}`,
                 learnMore: `${CHASE_DOMAIN}${learnMorePath}`
             })
